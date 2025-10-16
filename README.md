@@ -104,6 +104,28 @@ Sovellus pyörii osoitteessa: **http://localhost:8000**
 
 Admin-paneeli: **http://localhost:8000/admin/**
 
+### Testidatan generointi
+
+Generoi testidataa helposti:
+
+```bash
+./generate_test_data.sh
+```
+
+Vaihtoehdot:
+```bash
+./generate_test_data.sh --recipes 20       # Luo 20 reseptiä
+./generate_test_data.sh --clear            # Tyhjennä data ja luo 10 reseptiä
+./generate_test_data.sh --recipes 5 --clear # Tyhjennä ja luo 5 reseptiä
+./generate_test_data.sh --help             # Näytä ohje
+```
+
+Tai suoraan Django-komennolla:
+```bash
+uv run python manage.py generate_test_data --recipes 15
+uv run python manage.py generate_test_data --clear --recipes 10
+```
+
 ---
 
 ### Perinteinen asennus (pip)
