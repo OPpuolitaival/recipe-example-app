@@ -30,7 +30,8 @@ echo ""
 
 # Check if database exists
 if [ ! -f "db.sqlite3" ]; then
-    echo "🗄️  Database not found. Running migrations..."
+    echo "🗄️  Database not found. Creating migrations and running them..."
+    uv run python manage.py makemigrations
     uv run python manage.py migrate
 
     echo ""
@@ -52,6 +53,8 @@ if [ ! -f "db.sqlite3" ]; then
 else
     echo "✓ Database exists"
     echo ""
+    echo "🔄 Checking for new migrations..."
+    uv run python manage.py makemigrations
     echo "🔄 Running migrations (if any)..."
     uv run python manage.py migrate
 fi
