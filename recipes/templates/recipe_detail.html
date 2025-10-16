@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ recipe.name }} - Reseptisovellus{% endblock %}
+
+{% block content %}
+<div class="recipe-detail">
+    <!-- Recipe header -->
+    <div class="recipe-header">
+        <h2>{{ recipe.name }}</h2>
+        <div class="recipe-meta">
+            <span class="meta-item">
+                <strong>Valmistusaika:</strong> {{ recipe.prep_time }} min
+            </span>
+            <span class="meta-item">
+                <strong>Kypsennysaika:</strong> {{ recipe.cook_time }} min
+            </span>
+            <span class="meta-item">
+                <strong>Yhteensä:</strong> {{ recipe.total_time }} min
+            </span>
+            <span class="meta-item">
+                <strong>Annokset:</strong> {{ recipe.servings }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Description -->
+    {% if recipe.description %}
+    <div class="recipe-description">
+        <p>{{ recipe.description }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Ingredients -->
+    <div class="recipe-section">
+        <h3>Raaka-aineet</h3>
+        {% if recipe.recipe_ingredients.all %}
+        <ul class="ingredient-list">
+            {% for recipe_ingredient in recipe.recipe_ingredients.all %}
+            <li>
+                <span class="ingredient-quantity">{{ recipe_ingredient.quantity }}</span>
+                <span class="ingredient-name">{{ recipe_ingredient.ingredient.name }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="no-content">Ei raaka-aineita lisätty.</p>
+        {% endif %}
+    </div>
+
+    <!-- Instructions -->
+    <div class="recipe-section">
+        <h3>Valmistusohjeet</h3>
+        <div class="recipe-instructions">
+            {{ recipe.instructions|linebreaks }}
+        </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="recipe-actions">
+        <a href="{% url 'recipe_edit' recipe.pk %}" class="btn btn-primary">Muokkaa</a>
+
+        <!-- Delete button with HTMX -->
+        <button
+            hx-delete="{% url 'recipe_delete' recipe.pk %}"
+            hx-confirm="Haluatko varmasti poistaa reseptin '{{ recipe.name }}'? Tätä toimintoa ei voi peruuttaa."
+            class="btn btn-danger"
+        >
+            Poista
+        </button>
+
+        <a href="{% url 'recipe_list' %}" class="btn btn-secondary">Takaisin listaan</a>
+    </div>
+
+    <!-- Metadata -->
+    <div class="recipe-metadata">
+        <small class="text-muted">
+            Luotu: {{ recipe.created_at|date:"d.m.Y H:i" }}
+            {% if recipe.updated_at != recipe.created_at %}
+            | Päivitetty: {{ recipe.updated_at|date:"d.m.Y H:i" }}
+            {% endif %}
+        </small>
+    </div>
+</div>
+{% endblock %}

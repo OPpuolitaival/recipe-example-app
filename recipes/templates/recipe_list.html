@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Reseptilista - Reseptisovellus{% endblock %}
+
+{% block content %}
+<div class="recipe-list-page">
+    <h2>Kaikki reseptit</h2>
+
+    <!-- Search bar with HTMX -->
+    <div class="search-section">
+        <label for="ingredient-search">Hae raaka-aineella:</label>
+        <input
+            type="text"
+            id="ingredient-search"
+            name="ingredient"
+            placeholder="esim. maito, kananmuna..."
+            hx-get="{% url 'recipe_search' %}"
+            hx-trigger="keyup changed delay:500ms"
+            hx-target="#recipe-list"
+            hx-swap="innerHTML"
+            class="search-input"
+        >
+        <small class="help-text">Kirjoita raaka-aineen nimi nähdäksesi vain ne reseptit, joissa sitä käytetään</small>
+    </div>
+
+    <!-- Recipe list container (updated by HTMX) -->
+    <div id="recipe-list" class="recipe-grid">
+        {% if recipes %}
+            {% for recipe in recipes %}
+                {% include 'includes/recipe_card.html' with recipe=recipe %}
+            {% endfor %}
+        {% else %}
+            <p class="no-recipes">Ei vielä reseptejä. <a href="{% url 'recipe_create' %}">Luo ensimmäinen resepti!</a></p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

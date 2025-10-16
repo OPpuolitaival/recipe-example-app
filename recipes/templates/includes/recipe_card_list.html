@@ -1,0 +1,8 @@
+<!-- List of recipe cards (used by HTMX search) -->
+{% if recipes %}
+    {% for recipe in recipes %}
+        {% include 'includes/recipe_card.html' with recipe=recipe %}
+    {% endfor %}
+{% else %}
+    <p class="no-recipes">Ei reseptejä annetuilla hakuehdoilla.</p>
+{% endif %}

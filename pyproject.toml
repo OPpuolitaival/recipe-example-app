@@ -1,0 +1,16 @@
+[project]
+name = "recipe-app"
+version = "0.1.0"
+description = "Simple recipe management application with Django and HTMX"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "django>=5.0,<5.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = []
