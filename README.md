@@ -394,3 +394,41 @@ Luotu Django 5.0 + HTMX -harjoitusprojektina.
 - [Django Documentation](https://docs.djangoproject.com/)
 - [HTMX Documentation](https://htmx.org/docs/)
 - [SUUNNITELMA.md](SUUNNITELMA.md) - Yksityiskohtainen projektisuunnitelma
+
+
+
+## Fuzz-testaus Radamsalla
+
+Tähän projektiin on lisätty Radamsa-pohjaiset fuzz-testit reseptin syöttöä varten.
+Ne kohdistuvat reseptin luontilomakkeen kenttiin (RecipeForm) sekä raaka-aineiden formsettiin (RecipeIngredientFormSet) ilman tietokantakirjoituksia.
+
+Hakemistorakenne:
+- fuzz/radamsa_recipe_forms_harness.py — Python-ajuri, joka lukee yhden URL-koodatun POST-datan stdin:stä ja validoi lomakkeet
+- fuzz/radamsa_recipe_forms_fuzz.sh — ajoskripti, joka pyörittää Radamsaa siemenillä ja syöttää tuloksen ajurille
+- fuzz/seeds/*.txt — siemenet (URL-enkoodattua application/x-www-form-urlencoded -dataa)
+- fuzz/crashes/ — tänne talletetaan mahdolliset kaatumista aiheuttaneet syötteet
+
+Esivaatimukset:
+- Django-riippuvuudet asennettuna (esim. ./run.sh asentaa ne uv:llä)
+- Radamsa asennettuna (macOS: brew install radamsa, Linux: käännä lähteistä tai katso ohjeet https://gitlab.com/akihe/radamsa)
+
+Käyttö:
+```bash
+# Aja projektin juuressa
+export DJANGO_SETTINGS_MODULE=recipe_project.settings
+
+# Suositus: käytä virtualenviä, jossa Django on asennettuna
+
+# Aja 200 mutaatiota / siemen (oletus)
+bash fuzz/radamsa_recipe_forms_fuzz.sh
+
+# Tai säädä iterointimäärää, esim. 1000 / siemen
+ITERATIONS_PER_SEED=1000 bash fuzz/radamsa_recipe_forms_fuzz.sh
+
+# Jos kaatuminen havaitaan, toistoresepti löytyy hakemistosta fuzz/crashes/
+```
+
+Huomioita:
+- Ajuri käsittelee validointivirheet odotettuina (ne eivät pysäytä ajoa). Ajo keskeytyy vain odottamattomissa poikkeuksissa lomakelogiikassa.
+- Syöteformaatti on application/x-www-form-urlencoded, sama kuin lomakepostauksissa. Radamsa saa hyvän lähtökohdan muokkaamalla siemenistä avain–arvo -pareja.
+- Ajo ei vaadi käynnissä olevaa palvelinta; kaikki tapahtuu prosessin sisällä.

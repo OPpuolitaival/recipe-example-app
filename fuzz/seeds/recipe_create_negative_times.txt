@@ -1,0 +1,1 @@
+name=Nopea%20keitto&description=Testataan%20negatiivisia%20aikoja&instructions=Keitä.&prep_time=-5&cook_time=-10&servings=2&recipeingredient_set-TOTAL_FORMS=1&recipeingredient_set-INITIAL_FORMS=0&recipeingredient_set-MIN_NUM_FORMS=1&recipeingredient_set-MAX_NUM_FORMS=1000&recipeingredient_set-0-ingredient_name=Suola&recipeingredient_set-0-quantity=1%20tl

@@ -1,0 +1,1 @@
+name=A&description=&instructions=Kuvaus&prep_time=0&cook_time=0&servings=1&recipeingredient_set-TOTAL_FORMS=1&recipeingredient_set-INITIAL_FORMS=0&recipeingredient_set-MIN_NUM_FORMS=1&recipeingredient_set-MAX_NUM_FORMS=1000&recipeingredient_set-0-ingredient_name=Vesi&recipeingredient_set-0-quantity=1%20l

@@ -36,6 +36,8 @@ COVERAGE_HTML=""
 E2E=""
 HEADED=""
 SLOWMO_MS=""
+FUZZ=""
+FUZZ_ITERATIONS=""
 while [[ $# -gt 0 ]]; do
     case $1 in
         --all)
@@ -107,6 +109,14 @@ while [[ $# -gt 0 ]]; do
             VERBOSITY="3"
             shift
             ;;
+        --fuzz)
+            FUZZ="true"
+            shift
+            ;;
+        --fuzz-iterations)
+            FUZZ_ITERATIONS="$2"
+            shift 2
+            ;;
         -h|--help)
             echo "Usage: ./test_run.sh [OPTIONS]"
             echo ""
@@ -135,6 +145,10 @@ while [[ $# -gt 0 ]]; do
             echo "  --coverage         Run with coverage report"
             echo "  --coverage-html    Run with HTML coverage report"
             echo ""
+            echo "Fuzz Options:"
+            echo "  --fuzz             Run Radamsa-based fuzz tests for recipe form input"
+            echo "  --fuzz-iterations N   Number of iterations per seed (default: 200)"
+            echo ""
             echo "Examples:"
             echo "  ./test_run.sh                          # Run all recipes tests"
             echo "  ./test_run.sh --models                 # Run only model tests"
@@ -144,6 +158,8 @@ while [[ $# -gt 0 ]]; do
             echo "  ./test_run.sh --coverage               # Run with coverage"
             echo "  ./test_run.sh --parallel --failfast    # Fast parallel testing"
             echo "  ./test_run.sh --coverage-html          # Generate HTML report"
+            echo "  ./test_run.sh --fuzz                   # Run Radamsa fuzzing with defaults"
+            echo "  ./test_run.sh --fuzz --fuzz-iterations 1000   # Run fuzzing with 1000 iterations/seed"
             echo "  ./test_run.sh --path recipes.tests.test_models.RecipeModelTest"
             echo ""
             echo "Adding New Tests:"
@@ -161,7 +177,35 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# If E2E mode, run Playwright tests via pytest and exit
+# If Fuzz mode, run Radamsa-based fuzzing and exit
+if [ -n "$FUZZ" ]; then
+    echo -e "${BLUE}🧬 Running Radamsa fuzz tests for recipe form input...${NC}"
+    echo ""
+
+    # Ensure project dependencies are installed
+    if ! uv run python -c "import django" 2>/dev/null; then
+        echo -e "${YELLOW}⚠️  Syncing project dependencies (pyproject.toml)...${NC}"
+        uv sync
+        echo ""
+    fi
+
+    # Allow customization of iterations per seed
+    if [ -n "$FUZZ_ITERATIONS" ]; then
+        export ITERATIONS_PER_SEED="$FUZZ_ITERATIONS"
+    fi
+
+    # Run fuzzing inside uv environment so the harness can import Django
+    if uv run bash fuzz/radamsa_recipe_forms_fuzz.sh; then
+        echo -e "${GREEN}✅ Fuzzing completed without crashes.${NC}"
+        exit 0
+    else
+        status=$?
+        echo -e "${RED}❌ Fuzzing detected a crash. See reproducer(s) under fuzz/crashes/.${NC}"
+        exit $status
+    fi
+fi
+
+# If E2E mode, run Playwright end-to-end tests via pytest and exit
 if [ -n "$E2E" ]; then
     echo -e "${BLUE}🎭 Running Playwright end-to-end tests...${NC}"
     echo ""
