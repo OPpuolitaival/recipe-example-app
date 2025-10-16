@@ -35,9 +35,20 @@ if [ ! -f "db.sqlite3" ]; then
 
     echo ""
     echo "👤 Creating superuser..."
-    echo "   (You'll be prompted for username, email, and password)"
-    echo ""
-    uv run python manage.py createsuperuser
+
+    # Check if environment variables are set for non-interactive creation
+    if [ -n "$DJANGO_SUPERUSER_USERNAME" ] && [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; then
+        echo "   Creating superuser from environment variables..."
+        uv run python manage.py createsuperuser --noinput || echo "   Superuser creation failed."
+    elif [ -t 0 ]; then
+        echo "   (You'll be prompted for username, email, and password)"
+        echo ""
+        uv run python manage.py createsuperuser || echo "   Superuser creation skipped or failed. You can create one manually later."
+    else
+        echo "   ⚠️  Not running in interactive mode, skipping superuser creation."
+        echo "   Run manually: uv run python manage.py createsuperuser"
+        echo "   Or set DJANGO_SUPERUSER_USERNAME, DJANGO_SUPERUSER_PASSWORD, and DJANGO_SUPERUSER_EMAIL"
+    fi
 else
     echo "✓ Database exists"
     echo ""

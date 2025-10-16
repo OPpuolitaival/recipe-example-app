@@ -84,8 +84,21 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 Tämä skripti:
 - Asentaa riippuvuudet automaattisesti
 - Ajaa migraatiot
-- Pyytää luomaan superuser-käyttäjän (ensimmäisellä kerralla)
+- Pyytää luomaan superuser-käyttäjän (ensimmäisellä kerralla, jos interaktiivinen terminaali)
 - Käynnistää kehityspalvelimen
+
+**Luo superuser manuaalisesti** (jos skripti ei kysynyt):
+```bash
+uv run python manage.py createsuperuser
+```
+
+Tai aseta ympäristömuuttujat ja aja skripti uudelleen:
+```bash
+export DJANGO_SUPERUSER_USERNAME=admin
+export DJANGO_SUPERUSER_PASSWORD=admin123
+export DJANGO_SUPERUSER_EMAIL=admin@example.com
+./run.sh
+```
 
 Sovellus pyörii osoitteessa: **http://localhost:8000**
 
