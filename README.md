@@ -260,6 +260,67 @@ Kirjaudu sisään: http://localhost:8000/admin/
 
 ## Testaus
 
+Sovellus sisältää kattavat unit-testit Django-puolelle.
+
+### Testien ajaminen
+
+**Yksinkertainen tapa:**
+```bash
+./test_run.sh
+```
+
+**Vaihtoehdot:**
+```bash
+./test_run.sh --models           # Vain model-testit
+./test_run.sh --views            # Vain view-testit
+./test_run.sh --forms            # Vain form-testit
+./test_run.sh --coverage         # Aja testit ja näytä kattavuus
+./test_run.sh --coverage-html    # Generoi HTML-kattavuusraportti
+./test_run.sh --parallel         # Aja testit rinnakkain (nopeampi)
+./test_run.sh --failfast         # Pysähdy ensimmäiseen virheeseen
+./test_run.sh --keepdb           # Säilytä tietokanta testikertojen välillä
+./test_run.sh --help             # Näytä kaikki vaihtoehdot
+```
+
+**Django-komennolla suoraan:**
+```bash
+uv run python manage.py test                           # Kaikki testit
+uv run python manage.py test recipes                   # Recipes app
+uv run python manage.py test recipes.tests.test_models # Tietty tiedosto
+uv run python manage.py test --parallel --failfast     # Nopea
+```
+
+### Test Coverage
+
+Testikattavuus coverage-työkalulla:
+```bash
+./test_run.sh --coverage-html
+open htmlcov/index.html  # Avaa raportti
+```
+
+### Testien rakenne
+
+```
+recipes/tests/
+├── test_models.py        # Model-testit ✅ (14 testiä)
+├── test_views.py         # View-testit (tulossa)
+├── test_forms.py         # Form-testit (tulossa)
+├── test_urls.py          # URL-testit (tulossa)
+└── test_integration.py   # Integraatiotestit (tulossa)
+```
+
+### Uusien testien lisääminen
+
+1. Luo uusi testi-tiedosto `recipes/tests/` -kansioon
+2. Kirjoita testit käyttäen Django TestCase:a
+3. Aja testit: `./test_run.sh --path recipes.tests.your_test_file`
+
+Katso yksityiskohtainen testisuunnitelma: [TEST_PLAN.md](TEST_PLAN.md)
+
+---
+
+## Manuaalinen testaus
+
 Tämä sovellus on suunniteltu yksinkertaiseksi testauksen harjoittelua varten.
 
 ### Manuaalinen testaus
