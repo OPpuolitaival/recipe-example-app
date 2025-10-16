@@ -33,6 +33,7 @@ COVERAGE=""
 COVERAGE_HTML=""
 
 # Parse command line arguments
+E2E=""
 while [[ $# -gt 0 ]]; do
     case $1 in
         --all)
@@ -57,6 +58,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --integration)
             TEST_PATH="recipes.tests.test_integration"
+            shift
+            ;;
+        --e2e)
+            E2E="true"
             shift
             ;;
         --path)
@@ -102,6 +107,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --forms            Run only form tests"
             echo "  --urls             Run only URL tests"
             echo "  --integration      Run only integration tests"
+            echo "  --e2e              Run Playwright end-to-end tests (pytest)"
             echo "  --path PATH        Run specific test path"
             echo ""
             echo "Test Options:"
@@ -118,6 +124,7 @@ while [[ $# -gt 0 ]]; do
             echo "Examples:"
             echo "  ./test_run.sh                          # Run all recipes tests"
             echo "  ./test_run.sh --models                 # Run only model tests"
+            echo "  ./test_run.sh --e2e                    # Run Playwright e2e tests"
             echo "  ./test_run.sh --coverage               # Run with coverage"
             echo "  ./test_run.sh --parallel --failfast    # Fast parallel testing"
             echo "  ./test_run.sh --coverage-html          # Generate HTML report"
@@ -126,6 +133,7 @@ while [[ $# -gt 0 ]]; do
             echo "Adding New Tests:"
             echo "  1. Create test file in recipes/tests/"
             echo "  2. Run: ./test_run.sh --path recipes.tests.your_test_file"
+            echo "  E2E: Create tests in tests_e2e/ and run with --e2e"
             echo ""
             exit 0
             ;;
@@ -136,6 +144,47 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# If E2E mode, run Playwright tests via pytest and exit
+if [ -n "$E2E" ]; then
+    echo -e "${BLUE}🎭 Running Playwright end-to-end tests...${NC}"
+    echo ""
+
+    # Ensure project dependencies are installed
+    if ! uv run python -c "import pytest" 2>/dev/null; then
+        echo -e "${YELLOW}⚠️  Syncing project dependencies (pyproject.toml)...${NC}"
+        uv sync
+        echo ""
+    fi
+
+    # Ensure Playwright browsers are installed
+    echo -e "${BLUE}📥 Ensuring Playwright browsers are installed...${NC}"
+    uv run python -m playwright install --with-deps || uv run python -m playwright install
+
+    # Run pytest for e2e directory
+    PYTEST_OPTS="-q"
+    if [ "$VERBOSITY" = "3" ]; then
+        PYTEST_OPTS="-vv"
+    elif [ "$VERBOSITY" = "0" ]; then
+        PYTEST_OPTS="-q"
+    fi
+
+    if [ -d "tests_e2e" ]; then
+        uv run pytest $PYTEST_OPTS tests_e2e
+    else
+        echo -e "${RED}❌ tests_e2e directory not found.${NC}"
+        exit 1
+    fi
+
+    echo ""
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✅ E2E tests passed!${NC}"
+    else
+        echo -e "${RED}❌ E2E tests failed.${NC}"
+        exit 1
+    fi
+    exit 0
+fi
 
 # Build test command
 TEST_CMD="uv run python manage.py test"
