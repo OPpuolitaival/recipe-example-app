@@ -170,7 +170,7 @@ if [ -n "$E2E" ]; then
     fi
 
     if [ -d "tests_e2e" ]; then
-        uv run pytest $PYTEST_OPTS tests_e2e
+        DJANGO_ALLOW_ASYNC_UNSAFE=true uv run pytest $PYTEST_OPTS tests_e2e
     else
         echo -e "${RED}❌ tests_e2e directory not found.${NC}"
         exit 1
