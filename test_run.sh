@@ -34,6 +34,8 @@ COVERAGE_HTML=""
 
 # Parse command line arguments
 E2E=""
+HEADED=""
+SLOWMO_MS=""
 while [[ $# -gt 0 ]]; do
     case $1 in
         --all)
@@ -63,6 +65,14 @@ while [[ $# -gt 0 ]]; do
         --e2e)
             E2E="true"
             shift
+            ;;
+        --headed)
+            HEADED="--headed"
+            shift
+            ;;
+        --slowmo)
+            SLOWMO_MS="$2"
+            shift 2
             ;;
         --path)
             TEST_PATH="$2"
@@ -117,6 +127,10 @@ while [[ $# -gt 0 ]]; do
             echo "  --quiet            Minimal output (verbosity 0)"
             echo "  --verbose          Maximum output (verbosity 3)"
             echo ""
+            echo "E2E Viewing Options:"
+            echo "  --headed           Show browser UI during Playwright runs (headed mode)"
+            echo "  --slowmo MS        Slow down Playwright actions by MS milliseconds (e.g., 250)"
+            echo ""
             echo "Coverage Options:"
             echo "  --coverage         Run with coverage report"
             echo "  --coverage-html    Run with HTML coverage report"
@@ -124,7 +138,9 @@ while [[ $# -gt 0 ]]; do
             echo "Examples:"
             echo "  ./test_run.sh                          # Run all recipes tests"
             echo "  ./test_run.sh --models                 # Run only model tests"
-            echo "  ./test_run.sh --e2e                    # Run Playwright e2e tests"
+            echo "  ./test_run.sh --e2e                    # Run Playwright e2e tests (headless)"
+            echo "  ./test_run.sh --e2e --headed           # Run Playwright e2e tests with visible browser"
+            echo "  ./test_run.sh --e2e --headed --slowmo 250  # Headed with slower actions"
             echo "  ./test_run.sh --coverage               # Run with coverage"
             echo "  ./test_run.sh --parallel --failfast    # Fast parallel testing"
             echo "  ./test_run.sh --coverage-html          # Generate HTML report"
@@ -167,6 +183,14 @@ if [ -n "$E2E" ]; then
         PYTEST_OPTS="-vv"
     elif [ "$VERBOSITY" = "0" ]; then
         PYTEST_OPTS="-q"
+    fi
+
+    # Append headed/slowmo options if provided
+    if [ -n "$HEADED" ]; then
+        PYTEST_OPTS="$PYTEST_OPTS $HEADED"
+    fi
+    if [ -n "$SLOWMO_MS" ]; then
+        PYTEST_OPTS="$PYTEST_OPTS --slowmo=$SLOWMO_MS"
     fi
 
     if [ -d "tests_e2e" ]; then
